@@ -55,4 +55,4 @@ For plotting graphs it is convenient to automatically generate the viewport
 dimensions and flip the y-axis. We want to specify `(xmin, ymin)` and
 `(xmax, ymax)` and use `(x,y)` user coordinates in the corresponding rectangle.
 This requires the `viewBox="-xmin -ymin xmax-xmin ymax-ymin"`. To flip
-the y-axis we translate by $(0, ymax-yming)$ and scale by `(1,-1)`.
+the y-axis we translate by $(0, ymax-ymin)$ and scale by `(1,-1)`.
