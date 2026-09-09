@@ -2,11 +2,9 @@
 
 Simple Typescript wrappers for generating SVG. 
 
-The function `element(tag, attrs, content)`
-returns the string `"<tag key="value" ...>content</tag>"`
-`"<tag key="value" .../>"` if there is no content argument.
-
 ## `<xml>`
+
+SVG is XML. A simplified BNF grammar for it is.
 
 ```
 document ::= prolog? element

@@ -1,6 +1,15 @@
 {
   "scripts": {
+    "test": "node --loader tsx --test",
     "dev": "tsx src/index.ts",
     "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^26.5.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }
