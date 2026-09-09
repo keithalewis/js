@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Generate svg.svg",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx tsx svg.ts | Tee-Object -FilePath svg.svg",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

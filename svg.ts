@@ -33,6 +33,9 @@ console.assert(`x="-2" y="1.0000000000000002"` === new Point(1,2).rotate(Math.PI
 
 // XML style attribute
 class Attribute {
+	key: string;
+	value: string | number | boolean | undefined;
+
 	constructor(key: string, value:  string | number | boolean | undefined)
 	{
 		this.key = key;
@@ -40,37 +43,41 @@ class Attribute {
 	}
 	xml(): string
 	{
-		return this.value ? `${this.key}="${this.value}"` : "";
+		return this.value === undefined ? "" : `${this.key}="${this.value}"`;
 	}
 }
 console.assert(`key="value"` === (new Attribute("key", "value")).xml(), "Attribute.xml failed");
 
-class Element {
+class SvgElement {
 	static Content = class {
-		constructor(content: (Element|string)[]) {}
-		append(content: (Element|string)[]): this {
+		content: (SvgElement|string)[];
+
+		constructor(content: (SvgElement|string)[] = []) {
+			this.content = content;
+		}
+		append(content: (SvgElement|string)[]): this {
 			this.content.push(...content);
 			return this;
 		}
 		xml(): string {
-			return typeof content === "undefined" ? ""
-				: this.content.map((i) => { typeof i === "string" ? i : i.xml(); }).join("");
+			return this.content.map((item) => typeof item === "string" ? item : item.xml()).join("");
 		}
 	}
-	attributes: Attributes[] = [];
-	content: Content;
-	parent?: Element;
-	children: Element[] = [];
+	attributes: Attribute[] = [];
+	content: InstanceType<typeof SvgElement.Content> = new SvgElement.Content();
+	parent?: SvgElement;
+	children: SvgElement[] = [];
 
-	constructor(attributes?: Attributes[], content?: Content) {
+	constructor(attributes?: Attribute[], content?: InstanceType<typeof SvgElement.Content>) {
+		this.attributes = attributes ?? [];
 		if (content) {
-			this.content = new Element.Content(content);
+			this.content = content;
 		}
 	}
 
-	empty(): bool
+	empty(): boolean
 	{
-		return !content.length;
+		return this.children.length === 0 && this.content.content.length === 0;
 	}
 	hasChildren(): boolean {
 		return this.children.length > 0;
@@ -79,7 +86,7 @@ class Element {
 		return this.children.length === 0;
 	}
 
-	append(child: Element): this
+	append(child: SvgElement): this
 	{
 		child.parent?.remove(child);
 		child.parent = this;
@@ -91,12 +98,28 @@ console.log(new Element.Content().xml());
 console.log(new Element.Content([]).xml());
 console.log(new Element.Content(["foo", "bar"]).xml());
 
-function element(tag: string, attr: [Attribute], content?: string): string
+function element(tag: string, attr: Attribute[], content?: string): string
 {
 	let attrs = attr.map((a) => a.xml()).join(" ");
 
-	return `<${tag} ${attrs(attr)}${content ? ">${content}</${tag}>" : "/>"}`;
+	return `<${tag}${attrs ? ` ${attrs}` : ""}${content === undefined ? "/>" : `>${content}</${tag}>`}`;
 }
+
+const svg = element("svg", [
+	new Attribute("xmlns", "http://www.w3.org/2000/svg"),
+	new Attribute("viewBox", "0 0 100 100"),
+	new Attribute("width", 100),
+	new Attribute("height", 100),
+], element("line", [
+	new Attribute("x1", 10),
+	new Attribute("y1", 10),
+	new Attribute("x2", 90),
+	new Attribute("y2", 90),
+	new Attribute("stroke", "black"),
+	new Attribute("stroke-width", 1),
+]));
+
+console.log(`<?xml version="1.0" encoding="UTF-8"?>\n${svg}`);
 
 /*
 type Attributes = Record<string, string | number | boolean | undefined>;
