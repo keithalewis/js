@@ -1,12 +1,11 @@
 {
   "scripts": {
-    "test": "node --loader tsx --test",
-    "dev": "tsx src/index.ts",
+    "test": "node --import tsx --test test/*.t.ts",
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^26.5.0",
-    "tsx": "^4.0.0",
+    "@types/node": "^26.5.1",
+    "tsx": "^4.23.13",
     "typescript": "^5.9.3"
   },
   "allowScripts": {

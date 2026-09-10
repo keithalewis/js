@@ -28,7 +28,7 @@ class Attribute {
 		this.key = key;
 		this.value = value;
 	}
-	xml(): string
+	toString(): string
 	{
 		return `${this.key}="${escapeXml(this.value, true)}"`;
 	}
@@ -40,23 +40,23 @@ class Content {
 	{
 		this.content = content ?? [];
 	}
-	xml(): string {
-		return this.content.map((item) => typeof item === "string" ? escapeXml(item) : item.xml()).join("");
+	toString(): string {
+		return this.content.map((item) => typeof item === "string" ? escapeXml(item) : item.toString()).join("");
 	}
 }
 
 class Element {
 	tag: string;
 	attributes: Attribute[];
-	content?: Content;
+	content: Content;
 	constructor(tag: string, attributes?: Attribute[], content?: Content) {
 		this.tag = tag;
 		this.attributes = attributes ?? [];
-		this.content = content;
+		this.content = content ?? new Content();
 	};
-	xml(): string {
-		const attrs = this.attributes.map((a) => " " + a.xml()).join("");
-		return `<${this.tag}${attrs}${this.content ? `>${this.content.xml()}</${this.tag}>` : '/>'}`;
+	toString(): string {
+		const attrs = this.attributes.map((a) => " " + a.toString()).join("");
+		return `<${this.tag}${attrs}${this.content ? `>${this.content.toString()}</${this.tag}>` : '/>'}`;
 	}
 }
 

@@ -12,16 +12,7 @@ TEST_FILES := $(shell find $(TEST_DIR) -name '*.t.ts')
 .PHONY: test
 test:
 	@echo "Running TypeScript tests..."
-	@node --loader tsx --test $(TEST_FILES)
-
-# Optional: watch mode (manual loop)
-.PHONY: watch
-watch:
-	@echo "Watching for changes..."
-	@while true; do \
-        inotifywait -e modify -r $(SRC_DIR) $(TEST_DIR); \
-        make test; \
-    done
+	@node --import tsx --test $(TEST_FILES)
 
 # Optional: lint target
 .PHONY: lint
