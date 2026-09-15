@@ -6,7 +6,8 @@
   "devDependencies": {
     "@types/node": "^26.5.1",
     "tsx": "^4.23.13",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true

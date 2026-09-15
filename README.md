@@ -46,13 +46,15 @@ skewX(angle)
 skewY(angle)
 matrix(a,b,c,d,e,f)
 ```
-
-The user coordinates to viewport coordinates transformation corresponds to
-`transform="translate(-x, -y) scale(width/w, height/h)"`.
 Transforms are applied left to right.
 
 For plotting graphs it is convenient to automatically generate the viewport
-dimensions and flip the y-axis. We want to specify `(xmin, ymin)` and
+dimensions and transforms. We want to specify `(xmin, ymin)` and
 `(xmax, ymax)` and use `(x,y)` user coordinates in the corresponding rectangle.
 This requires the `viewBox="-xmin -ymin xmax-xmin ymax-ymin"`. To flip
 the y-axis we translate by $(0, ymax-ymin)$ and scale by `(1,-1)`.
+
+The problem is a pixel in user coordinates gets
+scaled by `width/(xmax - xmin)` and `height/(ymax - ymin)`.
+we would like one pixel in user space to correspond to one pixel in display space.
+This implies `width/w = ?`

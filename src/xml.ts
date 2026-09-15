@@ -1,9 +1,11 @@
 // xml.ts - XML helpers
 /*
 :!npx tsx xml.ts
+:!npx tsc --noEmit
 */
 
-function escapeXml(value: string, attribute = false): string {
+function escapeXml(value: string, attribute = false): string
+{
     return value
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -20,44 +22,118 @@ function escapeXml(value: string, attribute = false): string {
 //   attributes ::= attribute*
 //   attribute ::= Name '=' String
 
-class Attribute {
-	key: string;
-	value: string;
-	constructor(key: string, value: string)
+//   attribute ::= Name '=' String
+//   attributes ::= attribute*
+type AttributeValue = string | number; // convert number to string when needed
+type Attributes = Record<string, AttributeValue>;
+// 'k1="v1" k2="v2" ... '
+function toString(attributes: Attributes): string
+{
+	return Object.entries(attributes).map(([k,v]) => { return `${k}="${escapeXml(String(v))}"`; }).join(" ");
+}
+//console.log({"a": 1} as Attributes);
+//console.log(toString({"a": 1} as Attributes));
+//console.assert(toString({"a": 1, "b": 2} as Attributes) === 'a="1" b="2"', "toString(Attributes) failed");
+
+// content ::= (element | text)*
+class Content {
+	content: Element | string;
+	constructor(content: Element | string)
 	{
-		this.key = key;
-		this.value = value;
+		this.content = content;
 	}
 	toString(): string
 	{
-		return `${this.key}="${escapeXml(this.value, true)}"`;
+		return typeof this.content === "string"
+			? escapeXml(this.content)
+			: this.content.toString();
 	}
 }
 
-class Content {
-	content: (Element | string)[];
-	constructor(content?: (Element | string)[])
-	{
-		this.content = content ?? [];
-	}
-	toString(): string {
-		return this.content.map((item) => typeof item === "string" ? escapeXml(item) : item.toString()).join("");
-	}
-}
+//console.assert(new Content("abc").toString() === "abc", "Content failed.");
 
 class Element {
 	tag: string;
-	attributes: Attribute[];
-	content: Content;
-	constructor(tag: string, attributes?: Attribute[], content?: Content) {
+	attribute: Attributes;
+	contents: Content[];
+
+	constructor(tag: string, attribute?: Attributes, contents?: Content[]) {
 		this.tag = tag;
-		this.attributes = attributes ?? [];
-		this.content = content ?? new Content();
-	};
+		this.attribute = attribute ?? {};
+		this.contents = contents ?? [];
+	}
+	// Avoid circular references when copying.
+	static copy(e: Element): Element {
+		return new Element(
+			e.tag,
+			e.attribute,
+			e.contents.map((c) => new Content(
+				typeof c.content === "string" ? c.content : Element.copy(c.content)
+			))
+		);
+	}
+	// add attributes({k1: v1, k1: v2, ...})
+	attributes(as: Attributes): this
+	{
+		Object.assign(this.attributes, as);
+
+		return this;
+	}
+
+	// Append new Content. No getContent.
+	content(content: Element | string): this
+	{
+		this.contents.push(new Content(content));
+
+		return this;
+	}
+	// element ::= emptyElement | startTag content endTag
 	toString(): string {
-		const attrs = this.attributes.map((a) => " " + a.toString()).join("");
-		return `<${this.tag}${attrs}${this.content ? `>${this.content.toString()}</${this.tag}>` : '/>'}`;
+		const attributes = Object.keys(this.attribute).length > 0
+			? " " + toString(this.attribute)
+			: "";
+		if (this.contents.length === 0) {
+			// emptyElement ::= '<' Name attributes? '/>'
+			return `<${this.tag}${attributes}/>`;
+		}
+		else {
+			// startTag ::= '<' Name attributes? '>'
+			const contents = this.contents.map((c) => c.toString()).join("");
+			return `<${this.tag}${attributes}>${contents}</${this.tag}>`;
+		}
 	}
 }
 
 export { Element };
+//export { Attribute, Content, Element };
+
+/*
+const c: Content = new Content("a");
+console.log(c.toString());
+
+let e = new Element("tag");
+console.log(e);
+console.log(e.toString());
+console.log(".");
+
+e.attribute["k"] = "v";
+console.log(e);
+console.log(e.toString());
+e.attribute["k1"] = "v2";
+console.log(".");
+
+e.content("c");
+console.log(e);
+console.log(e.toString());
+console.log(".");
+
+const v: Element = Element.copy(e);
+console.log("v = " + v);
+console.log("v = " + v.toString());
+const ev: Content = new Content(v);
+console.log("ev = " + ev.toString());
+e.content(v);
+console.log(e);
+console.log(e.toString());
+console.log(".");
+*/
