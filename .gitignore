@@ -10,3 +10,5 @@ src/.xml.ts.swp
 /node_modules/picocolors
 /node_modules/picomatch
 /node_modules/postcss
+node_modules/.bin/esbuild
+/node_modules
