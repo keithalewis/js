@@ -1,1 +1,12 @@
 src/.xml.ts.swp
+/.vs
+/.vscode
+/node_modules/@rolldown
+/node_modules/detect-libc
+/node_modules/fdir
+/node_modules/lightningcss
+/node_modules/lightningcss-linux-arm64-gnu
+/node_modules/nanoid
+/node_modules/picocolors
+/node_modules/picomatch
+/node_modules/postcss
