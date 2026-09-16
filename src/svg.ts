@@ -7,6 +7,8 @@ import { writeFileSync } from "node:fs";
 
 //writeFileSync("output.txt", "hello world", "utf8");
 
+// Global functions to communicate scaling
+
 class Point {
 	x: number;
 	y: number;
@@ -145,6 +147,6 @@ g.content(y);
 const z = new Line(new Point(w*.1, h*.1), new Point(w*.9, h*.9)).width(1);
 g.content(z);
 console.log(g);
-console.log(svg);
+console.dir(svg, {depth: null, colors: true});
 console.log(svg.toString());
 writeFileSync("output.svg", svg.toString(), "utf8");

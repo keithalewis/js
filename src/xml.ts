@@ -25,15 +25,33 @@ function escapeXml(value: string, attribute = false): string
 //   attribute ::= Name '=' String
 //   attributes ::= attribute*
 type AttributeValue = string | number; // convert number to string when needed
+class Attribute {
+	name: string;
+	value: AttributeValue;
+
+	constructor(name: string, value: AttributeValue)
+	{
+		this.name = name;
+		this.value = value;
+	}
+	// 'name="value"'
+	toString(): string
+	{
+		console.log("toString: " + this);
+		return `${this.name}="${escapeXml(String(this.value), true)}"`;
+	}
+}
 type Attributes = Record<string, AttributeValue>;
-// 'k1="v1" k2="v2" ... '
+// 'k1="v1" k2="v2" ... kn="vn"'
 function toString(attributes: Attributes): string
 {
-	return Object.entries(attributes).map(([k,v]) => { return `${k}="${escapeXml(String(v))}"`; }).join(" ");
+	return Object.values(attributes).map((a) => { return a.toString(); }).join(" ");
 }
-//console.log({"a": 1} as Attributes);
-//console.log(toString({"a": 1} as Attributes));
+console.log({"a": 1} as Attributes);
+console.log(toString({"a": 1} as Attributes));
 //console.assert(toString({"a": 1, "b": 2} as Attributes) === 'a="1" b="2"', "toString(Attributes) failed");
+console.log(({"a": 1, "b": 2} as Attributes));
+console.log(toString({"a": 1, "b": 2} as Attributes));
 
 // content ::= (element | text)*
 class Content {
@@ -52,15 +70,19 @@ class Content {
 
 //console.assert(new Content("abc").toString() === "abc", "Content failed.");
 
+//class Node Element|Attribute|string|...
+
 class Element {
 	tag: string;
 	attribute: Attributes;
 	contents: Content[];
+	parent?: Element;
 
 	constructor(tag: string, attribute?: Attributes, contents?: Content[]) {
 		this.tag = tag;
 		this.attribute = attribute ?? {};
 		this.contents = contents ?? [];
+		this.children = [];
 	}
 	// Avoid circular references when copying.
 	static copy(e: Element): Element {
@@ -75,7 +97,7 @@ class Element {
 	// add attributes({k1: v1, k1: v2, ...})
 	attributes(as: Attributes): this
 	{
-		Object.assign(this.attributes, as);
+		Object.assign(this.attribute, as);
 
 		return this;
 	}
@@ -83,9 +105,23 @@ class Element {
 	// Append new Content. No getContent.
 	content(content: Element | string): this
 	{
+		content.attribute["parent"] = this;
 		this.contents.push(new Content(content));
 
 		return this;
+	}
+	lookupAtrributeValue(key: string): AttributeValue
+	{
+		const value = this.attribute[key];
+		if (value) {
+			return value;
+		}
+		const parent = this.parent;
+		if (parent) {
+			return this.parent.lookupAttributeValue(key);
+		}
+		
+		return undefined;
 	}
 	// element ::= emptyElement | startTag content endTag
 	toString(): string {
