@@ -22,9 +22,7 @@ function escapeXml(value: string, attribute = false): string
 //   attributes ::= attribute*
 //   attribute ::= Name '=' String
 
-//   attribute ::= Name '=' String
-//   attributes ::= attribute*
-type AttributeValue = string | number; // convert number to string when needed
+type AttributeValue = string | number;
 class Attribute {
 	name: string;
 	value: AttributeValue;
@@ -32,13 +30,13 @@ class Attribute {
 	constructor(name: string, value: AttributeValue)
 	{
 		this.name = name;
-		this.value = value;
+		this.value = escapeXml(String(value), true);
 	}
-	// 'name="value"'
+	// attribute ::= Name '=' String
 	toString(): string
 	{
 		console.log("toString: " + this);
-		return `${this.name}="${escapeXml(String(this.value), true)}"`;
+		return `${this.name}="${this.value}"`;
 	}
 }
 type Attributes = Record<string, AttributeValue>;
@@ -82,7 +80,6 @@ class Element {
 		this.tag = tag;
 		this.attribute = attribute ?? {};
 		this.contents = contents ?? [];
-		this.children = [];
 	}
 	// Avoid circular references when copying.
 	static copy(e: Element): Element {
@@ -105,12 +102,15 @@ class Element {
 	// Append new Content. No getContent.
 	content(content: Element | string): this
 	{
-		content.attribute["parent"] = this;
+		if (Object.hasOwn(content, "attribute")) {
+			content.attribute["parent"] = this;
+		}
 		this.contents.push(new Content(content));
 
 		return this;
 	}
-	lookupAtrributeValue(key: string): AttributeValue
+	// Return attribute value given key in current or ancestors. 
+	lookupAttributeValue(key: string): AttributeValue
 	{
 		const value = this.attribute[key];
 		if (value) {
