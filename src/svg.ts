@@ -7,8 +7,6 @@ import { writeFileSync } from "node:fs";
 
 //writeFileSync("output.txt", "hello world", "utf8");
 
-// Global functions to communicate scaling
-
 class Point {
 	x: number;
 	y: number;
