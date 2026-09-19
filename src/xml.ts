@@ -5,6 +5,16 @@
 
 "use strict";
 
+// Simplified BNF grammar for XML:
+
+// element ::= emptyElement | startTag content endTag
+// emptyElement ::= '<' Name attributes? '/>'
+// startTag ::= '<' Name attributes? '>'
+// content ::= (element | text)*
+// endTag ::= '</' Name '>'
+//   attributes ::= attribute*
+//   attribute ::= Name '=' String
+
 // TODO: make idempotent?
 function escapeXml(value: string, attribute = false): string
 {
@@ -15,16 +25,6 @@ function escapeXml(value: string, attribute = false): string
         .replace(attribute ? /"/g : /$^/g, "&quot;")
         .replace(attribute ? /'/g : /$^/g, "&apos;");
 }
-
-// Simplified BNF grammar for XML:
-
-// element ::= emptyElement | startTag content endTag
-// emptyElement ::= '<' Name attributes? '/>'
-// startTag ::= '<' Name attributes? '>'
-// content ::= (element | text)*
-// endTag ::= '</' Name '>'
-//   attributes ::= attribute*
-//   attribute ::= Name '=' String
 
 // attribute ::= Name '=' String
 type AttributeValue = string | number; // convert number to string when needed
@@ -46,6 +46,7 @@ class Attribute {
 }
 
 // attributes ::= attribute*
+// Same as JSON `{k1:v1, k2:v2, ... kn:vn}` object.}
 type Attributes = Record<string, AttributeValue>;
 // 'k1="v1" k2="v2" ... kn="vn"'
 function toString(attributes: Attributes): string
