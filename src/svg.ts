@@ -5,8 +5,6 @@
 import { Element } from "./xml.js";
 import { writeFileSync } from "node:fs";
 
-//writeFileSync("output.txt", "hello world", "utf8");
-
 class Point {
 	x: number;
 	y: number;
@@ -60,20 +58,23 @@ class viewBox {
 
 // svg width height
 class Svg extends Element {
-	#width: number;
-	#height: number;
-	#sx: number;
-	#sy: number;
-	constructor(width: number, height: number, xmlns: string = "http://www.w3.org/2000/svg")
+	width: number;
+	height: number;
+	sx: number;
+	sy: number;
+	av: AttributeValue;
+	console.log(av);
+	constructor(width: number = "auto", height: number = "auto", xmlns: string = "http://www.w3.org/2000/svg")
 	{
 		super("svg");
-		this.#width = width;
-		this.#height = height;
-		this.#sx = 1;
-		this.#sy = 1;
+		this.attribute["xmlns"] = xmlns;
+		this.width = width;
+		this.height = height;
+		this.sx = 1;
+		this.sy = 1;
 		this.attribute["width"] = width;
 		this.attribute["height"] = height;
-		this.attribute["xmlns"] = xmlns;
+
 		const rect = new Element("rect");
 		rect.attribute["x"] = 0;
 		rect.attribute["y"] = 0;
@@ -83,18 +84,21 @@ class Svg extends Element {
 		rect.attribute["stroke"] = "red";
 		rect.attribute["stroke-width"] = 1;
 		this.content(rect);
-		
 	}
 	// user coordinates in box with user pixels scale'd
 	drawBox(xmin: number, ymin: number, xmax: number, ymax: number): Element
 	{
-		this.#sx = this.#width/(xmax - xmin);
-		this.#sy = this.#height/(ymax - ymin);
-		this.attribute["viewBox"] = `0 0 ${this.#width} ${this.#height}`;
+		this.attribute["viewBox"] = `0 0 ${this.width} ${this.height}`;
 		const g = new Element("g");
+		/*
+		g.attribute["sx"] = this.width/(xmax - xmin);
+		g.attribute["sy"] = this.height/(ymax - ymin);
+		*/
+		const sx = this.width/(xmax - xmin);
+		const sy = this.height/(ymax - ymin);
 		const dx = -xmin;
 		const dy = ymax;
-		g.attribute["transform"] = `translate(${dx*this.#sx}, ${dy*this.#sy}) scale(${this.#sx}, ${this.#sy}) scale(1,-1)`;
+		g.attribute["transform"] = `translate(${dx*sx}, ${dy*sy}) scale(${sx}, ${sy}) scale(1,-1)`;
 
 		return g;
 	}
@@ -116,6 +120,8 @@ class Line extends Element {
 	}
 	width(width: number): this
 	{
+		//const sx = this.lookupAttributeValue("sx");
+		//console.log(`sx = ${sx}`);
 		this.attribute["stroke-width"] = width;
 		return this;
 	}
@@ -134,15 +140,15 @@ class Line extends Element {
 const svg = new Svg(100, 100);
 //const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));
 const w = 10;
-const h = 10;
+const h = 20;
 const g = svg.drawBox(-1, -1, w, h);
 svg.content(g);
 console.log(g);
-const x = new Line(new Point(0, 0), new Point(0, w*.9)).width(1).linecap("square");
+const x = new Line(new Point(0, 0), new Point(0, w*.9)).width(1/w).linecap("square");
 g.content(x);
-const y = new Line(new Point(0, 0), new Point(h*.9, 0)).width(1).linecap("square");
+const y = new Line(new Point(0, 0), new Point(h*.9, 0)).width(1/w).linecap("square");
 g.content(y);
-const z = new Line(new Point(w*.1, h*.1), new Point(w*.9, h*.9)).width(1);
+const z = new Line(new Point(w*.1, h*.1), new Point(w*.9, h*.9)).width(1/w);
 g.content(z);
 console.log(g);
 console.dir(svg, {depth: null, colors: true});

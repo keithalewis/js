@@ -4,6 +4,7 @@
 :!npx tsc --noEmit
 */
 
+// TODO: make idempotent?
 function escapeXml(value: string, attribute = false): string
 {
     return value
@@ -14,6 +15,7 @@ function escapeXml(value: string, attribute = false): string
         .replace(attribute ? /'/g : /$^/g, "&apos;");
 }
 
+// Mini XML BNF grammar:
 // element ::= emptyElement | startTag content endTag
 // emptyElement ::= '<' Name attributes? '/>'
 // startTag ::= '<' Name attributes? '>'
@@ -25,18 +27,13 @@ function escapeXml(value: string, attribute = false): string
 type AttributeValue = string | number;
 class Attribute {
 	name: string;
-	value: AttributeValue;
+	value: string;
 
+	// escape entities and convert numbers to string
 	constructor(name: string, value: AttributeValue)
 	{
 		this.name = name;
 		this.value = escapeXml(String(value), true);
-	}
-	// attribute ::= Name '=' String
-	toString(): string
-	{
-		console.log("toString: " + this);
-		return `${this.name}="${this.value}"`;
 	}
 }
 type Attributes = Record<string, AttributeValue>;
@@ -45,11 +42,11 @@ function toString(attributes: Attributes): string
 {
 	return Object.values(attributes).map((a) => { return a.toString(); }).join(" ");
 }
-console.log({"a": 1} as Attributes);
-console.log(toString({"a": 1} as Attributes));
+//console.log(new Attribute("a", 1));
+//console.log(new Attribute("a", 1).toString());
 //console.assert(toString({"a": 1, "b": 2} as Attributes) === 'a="1" b="2"', "toString(Attributes) failed");
-console.log(({"a": 1, "b": 2} as Attributes));
-console.log(toString({"a": 1, "b": 2} as Attributes));
+//console.log(({"a": 1, "b": 2} as Attributes));
+//console.log(toString({"a": 1, "b": 2} as Attributes));
 
 // content ::= (element | text)*
 class Content {
@@ -60,31 +57,30 @@ class Content {
 	}
 	toString(): string
 	{
-		return typeof this.content === "string"
-			? escapeXml(this.content)
-			: this.content.toString();
+		return this.content.toString();
 	}
 }
 
-//console.assert(new Content("abc").toString() === "abc", "Content failed.");
+console.assert(new Content("abc").toString() === "abc", "Content failed.");
 
-//class Node Element|Attribute|string|...
+// ??? class Node Element|Attribute|string|...
 
+// element ::= emptyElement | startTag content endTag
 class Element {
-	tag: string;
+	name: string;
 	attribute: Attributes;
 	contents: Content[];
 	parent?: Element;
 
-	constructor(tag: string, attribute?: Attributes, contents?: Content[]) {
-		this.tag = tag;
+	constructor(name: string, attribute?: Attributes, contents?: Content[]) {
+		this.name = name;
 		this.attribute = attribute ?? {};
 		this.contents = contents ?? [];
 	}
 	// Avoid circular references when copying.
 	static copy(e: Element): Element {
 		return new Element(
-			e.tag,
+			e.name,
 			e.attribute,
 			e.contents.map((c) => new Content(
 				typeof c.content === "string" ? c.content : Element.copy(c.content)
@@ -102,15 +98,15 @@ class Element {
 	// Append new Content. No getContent.
 	content(content: Element | string): this
 	{
-		if (Object.hasOwn(content, "attribute")) {
-			content.attribute["parent"] = this;
+		if (typeof content !== "string") {
+			content.parent = this as Element;
 		}
 		this.contents.push(new Content(content));
 
 		return this;
 	}
 	// Return attribute value given key in current or ancestors. 
-	lookupAttributeValue(key: string): AttributeValue
+	lookupAttributeValue(key: string): AttributeValue | undefined
 	{
 		const value = this.attribute[key];
 		if (value) {
@@ -118,24 +114,26 @@ class Element {
 		}
 		const parent = this.parent;
 		if (parent) {
-			return this.parent.lookupAttributeValue(key);
+			return parent.lookupAttributeValue(key);
 		}
 		
 		return undefined;
 	}
 	// element ::= emptyElement | startTag content endTag
 	toString(): string {
-		const attributes = Object.keys(this.attribute).length > 0
-			? " " + toString(this.attribute)
-			: "";
+		let attributes = "";
+		for (const [k,v] of Object.entries(this.attribute)) {
+			// attribute ::= Name '=' String
+			attributes += ` ${k}="${v}"`;
+		}
 		if (this.contents.length === 0) {
 			// emptyElement ::= '<' Name attributes? '/>'
-			return `<${this.tag}${attributes}/>`;
+			return `<${this.name}${attributes}/>`;
 		}
 		else {
 			// startTag ::= '<' Name attributes? '>'
 			const contents = this.contents.map((c) => c.toString()).join("");
-			return `<${this.tag}${attributes}>${contents}</${this.tag}>`;
+			return `<${this.name}${attributes}>${contents}</${this.name}>`;
 		}
 	}
 }
@@ -144,13 +142,22 @@ export { Element };
 //export { Attribute, Content, Element };
 
 /*
-const c: Content = new Content("a");
-console.log(c.toString());
-
 let e = new Element("tag");
 console.log(e);
 console.log(e.toString());
+e.attributes({k: "v", k2: 2});
+console.log(e);
+console.log(e.toString());
+let c = Element.copy(e);
+c.attributes({k3: "v3"});
+console.log(c);
+e.content(c);
+console.log(e);
+console.log(e.toString());
 console.log(".");
+console.log(c.lookupAttributeValue("k3"));
+console.log(c.lookupAttributeValue("k2"));
+
 
 e.attribute["k"] = "v";
 console.log(e);
