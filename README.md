@@ -4,7 +4,7 @@ Simple Typescript wrappers for generating SVG.
 
 ## `<xml>`
 
-SVG is XML. A simplified BNF grammar for it is.
+A simplified BNF grammar for XML is.
 
 ```
 document ::= prolog? element
@@ -27,6 +27,19 @@ content ::= (element | text)*
 text ::= Char*
 ```
 
+```
+let e = new Element("tag", attributes?, content[]?);
+e.attributes({k:v, ...}); // add/change attributes
+e.attribute[k] => v
+e.lookupAttributeValue(k) => first value found in current or ancestors
+e.content([string, ...]) // append test content
+e.content([Element, ...]) // append element content
+```
+
+Use `static Element.copy(element): Element` to avoid circular references.
+
+Use `Element.toString(): string` to generate XML text.
+
 ## `<svg>`
 
 The `<svg>` element specifies a _viewport_ with `height` and `width` attributes
@@ -48,13 +61,8 @@ matrix(a,b,c,d,e,f)
 ```
 Transforms are applied left to right.
 
-For plotting graphs it is convenient to automatically generate the viewport
-dimensions and transforms. We want to specify `(xmin, ymin)` and
-`(xmax, ymax)` and use `(x,y)` user coordinates in the corresponding rectangle.
-This requires the `viewBox="-xmin -ymin xmax-xmin ymax-ymin"`. To flip
-the y-axis we translate by $(0, ymax-ymin)$ and scale by `(1,-1)`.
+We specify a `drawBox(x, y, w, h, s)` where `s` is the scale parameter.
 
-The problem is a pixel in user coordinates gets
-scaled by `width/(xmax - xmin)` and `height/(ymax - ymin)`.
-we would like one pixel in user space to correspond to one pixel in display space.
-This implies `width/w = ?`
+```
+plot = new Plot(x0, y0, w, h, s); // an svg element
+```

@@ -4,6 +4,8 @@
 :!npx tsc --noEmit
 */
 
+"use strict";
+
 // TODO: make idempotent?
 function escapeXml(value: string, attribute = false): string
 {
@@ -72,10 +74,10 @@ class Element {
 	contents: Content[];
 	parent?: Element;
 
-	constructor(name: string, attribute?: Attributes, contents?: Content[]) {
+	constructor(name: string, attributes?: Attributes = {}) {
 		this.name = name;
-		this.attribute = attribute ?? {};
-		this.contents = contents ?? [];
+		this.attribute = attributes;
+		this.contents = [];
 	}
 	// Avoid circular references when copying.
 	static copy(e: Element): Element {
@@ -87,7 +89,7 @@ class Element {
 			))
 		);
 	}
-	// add attributes({k1: v1, k1: v2, ...})
+	// add/replace attributes({k1: v1, k1: v2, ...})
 	attributes(as: Attributes): this
 	{
 		Object.assign(this.attribute, as);
@@ -99,7 +101,7 @@ class Element {
 	content(content: Element | string): this
 	{
 		if (typeof content !== "string") {
-			content.parent = this as Element;
+			content.parent = this;
 		}
 		this.contents.push(new Content(content));
 
@@ -141,11 +143,49 @@ class Element {
 export { Element };
 //export { Attribute, Content, Element };
 
+function testElement()
+{
+	let e = new Element("tag");
+	console.log(e);
+	console.log(e.toString());
+	console.assert(e.toString() === "<tag/>");
+}
+function testElementAttributes()
+{
+	let e0 = new Element("tag", {k: "v", k2: 2});
+	let e1 = new Element("tag");
+	e1.attributes({k: "v", k2: 2});
+	console.log(e0);
+	console.log(e1);
+	console.assert(e0.toString() === e1.toString());
+	e0.attributes({k: "w"});
+	e1.attribute["k"] = "w";
+	console.log(e0);
+	console.log(e1);
+	console.assert(e0.toString() === e1.toString());
+}
+function testElementContent()
+{
+	let e = new Element("tag");
+	e.content("contents");
+	console.log(e);
+	console.log(e.name);
+	//let c = Element.copy(e);
+	//let e1 = Element.copy(e);
+	e.content(e);
+	console.log(e);
+	//console.log(e.toString());
+}
+function testXml()
+{
+	testElement();
+	testElementAttributes();
+	testElementContent();
+}
+testXml();
 /*
-let e = new Element("tag");
-console.log(e);
 console.log(e.toString());
-e.attributes({k: "v", k2: 2});
+e.content("content");
 console.log(e);
 console.log(e.toString());
 let c = Element.copy(e);
