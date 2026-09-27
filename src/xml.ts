@@ -74,20 +74,18 @@ class Element {
 	contents: Content[];
 	parent?: Element;
 
-	constructor(name: string, attributes?: Attributes = {}) {
+	constructor(name: string, attributes: Attributes = {}) {
 		this.name = name;
 		this.attribute = attributes;
 		this.contents = [];
 	}
 	// Avoid circular references when copying.
 	static copy(e: Element): Element {
-		return new Element(
-			e.name,
-			e.attribute,
-			e.contents.map((c) => new Content(
-				typeof c.content === "string" ? c.content : Element.copy(c.content)
-			))
-		);
+		const copy = new Element(e.name, e.attribute);
+		for (const c of e.contents) {
+			copy.content(typeof c.content === "string" ? c.content : Element.copy(c.content));
+		}
+		return copy;
 	}
 	// add/replace attributes({k1: v1, k1: v2, ...})
 	attributes(as: Attributes): this

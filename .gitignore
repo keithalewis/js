@@ -12,3 +12,5 @@ src/.xml.ts.swp
 /node_modules/postcss
 node_modules/.bin/esbuild
 /node_modules
+.README.md.swp
+src/.svg.ts.swp
