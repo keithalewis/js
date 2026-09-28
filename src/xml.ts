@@ -167,12 +167,11 @@ function testElementContent()
 	let e = new Element("tag");
 	e.content("contents");
 	console.log(e);
-	console.log(e.name);
-	//let c = Element.copy(e);
+	let c = Element.copy(e);
 	//let e1 = Element.copy(e);
-	e.content(e);
+	e.content(c);
 	console.log(e);
-	//console.log(e.toString());
+	console.log(e.toString());
 }
 function testXml()
 {
