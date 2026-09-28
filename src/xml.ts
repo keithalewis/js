@@ -1,4 +1,3 @@
-// xml.ts - XML helpers
 /*
 :!npx tsx xml.ts
 :!npx tsc --noEmit
@@ -17,7 +16,8 @@ function escapeXml(value: string, attribute = false): string
         .replace(attribute ? /'/g : /$^/g, "&apos;");
 }
 
-// Mini XML BNF grammar:
+// Simplified BNF grammar for XML:
+
 // element ::= emptyElement | startTag content endTag
 // emptyElement ::= '<' Name attributes? '/>'
 // startTag ::= '<' Name attributes? '>'
@@ -26,7 +26,8 @@ function escapeXml(value: string, attribute = false): string
 //   attributes ::= attribute*
 //   attribute ::= Name '=' String
 
-type AttributeValue = string | number;
+// attribute ::= Name '=' String
+type AttributeValue = string | number; // convert number to string when needed
 class Attribute {
 	name: string;
 	value: string;
@@ -37,15 +38,20 @@ class Attribute {
 		this.name = name;
 		this.value = escapeXml(String(value), true);
 	}
+	// 'name="value"'
+	toString(): string
+	{
+		return `${this.name}="${this.value}"`;
+	}
 }
+
+// attributes ::= attribute*
 type Attributes = Record<string, AttributeValue>;
 // 'k1="v1" k2="v2" ... kn="vn"'
 function toString(attributes: Attributes): string
 {
-	return Object.values(attributes).map((a) => { return a.toString(); }).join(" ");
+	return Object.entries(attributes).map(([k,v]) => { return `${k}="${v}"`; }).join(" ");
 }
-//console.log(new Attribute("a", 1));
-//console.log(new Attribute("a", 1).toString());
 //console.assert(toString({"a": 1, "b": 2} as Attributes) === 'a="1" b="2"', "toString(Attributes) failed");
 //console.log(({"a": 1, "b": 2} as Attributes));
 //console.log(toString({"a": 1, "b": 2} as Attributes));
@@ -79,7 +85,7 @@ class Element {
 		this.attribute = attributes;
 		this.contents = [];
 	}
-	// Avoid circular references when copying.
+	// Avoid references when copying.
 	static copy(e: Element): Element {
 		const copy = new Element(e.name, e.attribute);
 		for (const c of e.contents) {
@@ -189,6 +195,10 @@ let c = Element.copy(e);
 c.attributes({k3: "v3"});
 console.log(c);
 e.content(c);
+const c: Content = new Content("a");
+console.log(c.toString());
+
+let e = new Element("name");
 console.log(e);
 console.log(e.toString());
 console.log(".");

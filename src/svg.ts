@@ -37,7 +37,6 @@ console.log((new Point(1,2)).toString(1));
 console.log((new Point(1,2)).attributes(1));
 */
 
-
 class viewBox {
 	x: number;
 	y: number;
@@ -62,12 +61,9 @@ class Svg extends Element {
 	height: number;
 	sx: number;
 	sy: number;
-	av: AttributeValue;
-	console.log(av);
-	constructor(width: number = "auto", height: number = "auto", xmlns: string = "http://www.w3.org/2000/svg")
+	constructor(width: number, height: number, xmlns: string = "http://www.w3.org/2000/svg")
 	{
 		super("svg");
-		this.attribute["xmlns"] = xmlns;
 		this.width = width;
 		this.height = height;
 		this.sx = 1;
@@ -88,6 +84,8 @@ class Svg extends Element {
 	// user coordinates in box with user pixels scale'd
 	drawBox(xmin: number, ymin: number, xmax: number, ymax: number): Element
 	{
+		this.sx = this.width/(xmax - xmin);
+		this.sy = this.height/(ymax - ymin);
 		this.attribute["viewBox"] = `0 0 ${this.width} ${this.height}`;
 		const g = new Element("g");
 		/*
@@ -98,7 +96,6 @@ class Svg extends Element {
 		const sy = this.height/(ymax - ymin);
 		const dx = -xmin;
 		const dy = ymax;
-		g.attribute["transform"] = `translate(${dx*sx}, ${dy*sy}) scale(${sx}, ${sy}) scale(1,-1)`;
 
 		return g;
 	}
@@ -106,12 +103,18 @@ class Svg extends Element {
 //console.log((new Svg(100,200)).drawBox(0, 0, 1, 2).toString());
 
 class Line extends Element {
+	sx: number;
+	sy: number
 	constructor(p1: Point, p2: Point)
 	{
 		super("line");
 		Object.assign(this.attribute, p1.attributes(1));
 		Object.assign(this.attribute, p2.attributes(2));
 		this.attribute["stroke"] = "black";
+		this.sx = this.lookupAttributeValue("sx");
+		this.sy = this.lookupAttributeValue("sy");
+console.log("sx = " + this.sx);
+console.log("sy = " + this.sy);
 	}
 	color(color: string): this
 	{
@@ -150,7 +153,7 @@ const y = new Line(new Point(0, 0), new Point(h*.9, 0)).width(1/w).linecap("squa
 g.content(y);
 const z = new Line(new Point(w*.1, h*.1), new Point(w*.9, h*.9)).width(1/w);
 g.content(z);
-console.log(g);
-console.dir(svg, {depth: null, colors: true});
+//console.log(g);
+//console.dir(svg, {depth: null, colors: true});
 console.log(svg.toString());
 writeFileSync("output.svg", svg.toString(), "utf8");
