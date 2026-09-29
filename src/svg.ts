@@ -57,14 +57,7 @@ class viewBox {
 
 // svg width height
 class Svg extends Element {
-<<<<<<< HEAD
 	// allow number or string. 
-=======
-	width: number;
-	height: number;
-	sx: number;
-	sy: number;
->>>>>>> c39b46a (node_modules)
 	constructor(width: number, height: number, xmlns: string = "http://www.w3.org/2000/svg")
 	{
 		super("svg", {width: width, height: height, xmlns: xmlns});
@@ -118,11 +111,9 @@ class Line extends Element {
 	}
 }
 
-<<<<<<< HEAD
 const w = 100;
 const h = 200;
 const svg = new Svg(w, h);
-=======
 /*
 const svg = new Svg(100, 100);
 //const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));
