@@ -5,54 +5,38 @@
 import { Element } from "./xml.js";
 import { writeFileSync } from "node:fs";
 
+const _DEBUG = true;
+
 class Point {
 	x: number;
 	y: number;
-	constructor(x: number, y: number)
-	{
+	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
 	}
-
-	// x{suffix}="x" y{suffix}="y"
-	toString(suffix: string | number = ""): string
-	{
-		const s = String(suffix);
-		return `x${s}="${this.x}" y${s}="${this.y}"`;
-	}
-	// {x{suffix}: x, y{suffix}: y}
-	toAttributes(suffix: string | number = "")
-	{
+	toAttributes(suffix: string | number = ""): Record<string, number> {
 		const s = String(suffix);
 		return { [`x${s}`]: this.x, [`y${s}`]: this.y };
 	}
-	// translate, scale, rotate
 }
+//function point(x: number, y: number): Point {
+//	return { x, y };
+//}
+
+_DEBUG && console.log((new Point(1,2)).toAttributes("0"));
 /*
-console.log((new Point(1,2)).toString());
-console.log((new Point(1,2)).toAttributes(2));
-console.log((new Point(1,2)).toString(1));
-console.log((new Point(1,2)).toString());
-console.log((new Point(1,2)).toString(1));
-console.log((new Point(1,2)).toAttributes(1));
+_DEBUG && console.log((new Point(1,2)).toAttributes(2));
+_DEBUG && console.log((new Point(1,2)).toString(1));
+_DEBUG && console.log((new Point(1,2)).toString());
+_DEBUG && console.log((new Point(1,2)).toString(1));
+_DEBUG && console.log((new Point(1,2)).toAttributes(1));
 */
 
-class viewBox {
+type viewBox = {
 	x: number;
 	y: number;
-	width: number;
-	height: number;
-	constructor(x: number, y: number, width: number, height: number)
-	{
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-	}
-	toString(): string
-	{
-		return `viewBox="${this.x} ${this.y} ${this.width} ${this.height}"`;
-	}
+	w: number;
+	h: number;
 }
 
 // svg width height
@@ -67,25 +51,18 @@ class Svg extends Element {
 			fill: "none", stroke: "red", "stroke-width": 1}
 		));
 	}
-}
-
-// 
-class Plot extends Svg {
-	// transform user coordinates so 
-	// (0,0) -> (x0*scale, y0*scale)
-	// (w,h) -> (x0+w*scale, y0+h*scale)
-	constructor(x0: number, y0: number, w: number, h: number, scale: number = 1)
+	plot(x: number, y: number, w: number, h: number): this
 	{
-		super(w, h);
+		this.content(new Element("g", {x: x, y: y, width: w, height: h}));
+		return this;
 	}
 }
 
 // https://www.w3.org/TR/SVG/shapes.html#LineElement
 class Line extends Element {
-	constructor(p1: Point, p2: Point)
+	constructor(p1: Point, p2: Point, color: string = "black")
 	{
-		super("line", {...p1.toAttributes(1), ...p2.toAttributes(2)});
-		this.attribute["stroke"] = "black";
+		super("line", {...p1.toAttributes(1), ...p2.toAttributes(2), stroke: color}) ;
 	}
 	color(color: string): this
 	{
@@ -95,7 +72,7 @@ class Line extends Element {
 	width(width: number): this
 	{
 		//const sx = this.lookupAttributeValue("sx");
-		//console.log(`sx = ${sx}`);
+		//_DEBUG && console.log(`sx = ${sx}`);
 		this.attribute["stroke-width"] = width;
 		return this;
 	}
@@ -114,8 +91,8 @@ class Line extends Element {
 const w = 100;
 const h = 200;
 const svg = new Svg(w, h);
-const x = new Line(new Point(0, 0), new Point(0, w*.9)).width(1/w).linecap("square");
-console.log(x);
+const x = new Line(new Point(0, 0), new Point(0, w * .9)).width(1/w).linecap("square");
+_DEBUG && console.log(x);
 //console.dir(svg, {depth: null, colors: true});
-console.log(svg.toString());
+_DEBUG && console.log(svg.toString());
 writeFileSync("output.svg", svg.toString(), "utf8");
