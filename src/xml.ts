@@ -27,6 +27,9 @@ function escapeXml(value: string, attribute = false): string
         .replace(attribute ? /"/g : /$^/g, "&quot;")
         .replace(attribute ? /'/g : /$^/g, "&apos;");
 }
+//console.assert(escapeXml("") === "");
+//console.log(escapeXml('"'));
+//console.log(escapeXml("'"));
 
 // attribute ::= Name '=' String
 type AttributeValue = string | number; // convert number to string when needed
@@ -53,7 +56,8 @@ type Attributes = Record<string, AttributeValue>;
 // 'k1="v1" k2="v2" ... kn="vn"'
 function toString(attributes: Attributes): string
 {
-	return Object.entries(attributes).map(([k,v]) => { return `${k}="${v}"`; }).join(" ");
+	//return Object.entries(attributes).map(([k,v]) => { return `${k}="${v}"`; }).join(" ");
+	return Object.entries(attributes).map(([k,v]) => { return (new Attribute(k,v)).toString(); }).join(" ");
 }
 //console.assert(toString({"a": 1, "b": 2} as Attributes) === 'a="1" b="2"', "toString(Attributes) failed");
 //_DEBUG && console.log(({"a": 1, "b": 2} as Attributes));
