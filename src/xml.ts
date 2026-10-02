@@ -32,7 +32,7 @@ function escapeXml(value: string, attribute = false): string
 //console.log(escapeXml("'"));
 
 // attribute ::= Name '=' String
-type AttributeValue = string | number; // convert number to string when needed
+type AttributeValue = string | number; // convert number to escaped string on construction
 class Attribute {
 	name: string;
 	value: string;
