@@ -42,7 +42,7 @@ type viewBox = {
 // svg width height
 class Svg extends Element {
 	// allow number or string. 
-	constructor(width: number, height: number, xmlns: string = "http://www.w3.org/2000/svg")
+	constructor(width: number|string = "100%", height: number|string = "100%", xmlns: string = "http://www.w3.org/2000/svg")
 	{
 		super("svg", {width: width, height: height, xmlns: xmlns});
 		// TODO: remove
@@ -90,9 +90,12 @@ class Line extends Element {
 
 const w = 100;
 const h = 200;
-const svg = new Svg(w, h);
+const svg = new Svg();
+const g = svg.plot(0, 0, w, h);
 const x = new Line(new Point(0, 0), new Point(0, w * .9)).width(1/w).linecap("square");
+g.content(x);
 _DEBUG && console.log(x);
+
 //console.dir(svg, {depth: null, colors: true});
 _DEBUG && console.log(svg.toString());
 writeFileSync("output.svg", svg.toString(), "utf8");
