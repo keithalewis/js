@@ -1,5 +1,5 @@
 /*
-:!npx tsx svg.ts
+:!npx tsx %
 :!npx tsc --noEmit
 */
 import { Element } from "./xml.js";
@@ -19,11 +19,9 @@ class Point {
 		return { [`x${s}`]: this.x, [`y${s}`]: this.y };
 	}
 }
-//function point(x: number, y: number): Point {
-//	return { x, y };
-//}
 
-_DEBUG && console.log((new Point(1,2)).toAttributes("0"));
+_DEBUG && console.log(JSON.stringify((new Point(1,2)).toAttributes("0")));
+console.assert(JSON.stringify((new Point(1,2)).toAttributes("0")) === '{"x0":1,"y0":2}');
 /*
 _DEBUG && console.log((new Point(1,2)).toAttributes(2));
 _DEBUG && console.log((new Point(1,2)).toString(1));
@@ -48,13 +46,14 @@ class Svg extends Element {
 		// TODO: remove
 		this.content(new Element(
 			"rect", {x: 0, y: 0, width: "100%", height: "100%", 
-			fill: "none", stroke: "red", "stroke-width": 1}
+			fill: "none", stroke: "hotpink", "stroke-width": 1}
 		));
 	}
-	plot(x: number, y: number, w: number, h: number): this
+	// User coordinates from lower-left to upper-right.
+	plot(llx: number, lly: number,  urx: number,  ury: number): Element
 	{
-		this.content(new Element("g", {x: x, y: y, width: w, height: h}));
-		return this;
+		this.attribute["viewBox"] = `${llx} ${lly} ${urx - llx} ${ury - lly}`;
+		return new Element("g", {transform: `translate(0, ${ury - lly}) scale(1, -1)`});
 	}
 }
 
@@ -88,14 +87,26 @@ class Line extends Element {
 	}
 }
 
-const w = 100;
-const h = 200;
-const svg = new Svg();
-const g = svg.plot(0, 0, w, h);
-const x = new Line(new Point(0, 0), new Point(0, w * .9)).width(1/w).linecap("square");
-g.content(x);
-_DEBUG && console.log(x);
-
+const w = 20;
+const h = 10;
+const svg = new Svg(400, 200);
+const p = svg.plot(0, 0, w, h);
+const x = new Line(new Point(0, 0), new Point(h*.9, w * .9)).width(1).linecap("square");
+p.content(x);
+_DEBUG && console.log(p);
+svg.content(p);
+console.log(svg.toString());
+writeFileSync("output.svg", svg.toString(), "utf8");
+/*
+//const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));
+const w = 10;
+const h = 20;
+const g = svg.drawBox(-1, -1, w, h);
+svg.content(g);
+>>>>>>> c39b46a (node_modules)
+const x = new Line(new Point(0, 0), new Point(0, w*.9)).width(1/w).linecap("square");
+console.log(x);
 //console.dir(svg, {depth: null, colors: true});
 _DEBUG && console.log(svg.toString());
 writeFileSync("output.svg", svg.toString(), "utf8");
+*/
