@@ -5,6 +5,8 @@
 
 "use strict";
 
+const _DEBUG = false;
+
 // Simplified BNF grammar for XML:
 
 // element ::= emptyElement | startTag content endTag
@@ -27,7 +29,7 @@ function escapeXml(value: string, attribute = false): string
 }
 
 // attribute ::= Name '=' String
-type AttributeValue = string | number; // convert number to string when needed
+type AttributeValue = string | number; // convert number to string in constructor
 class Attribute {
 	name: string;
 	value: string;
