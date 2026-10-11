@@ -67,16 +67,10 @@ class Svg extends Element {
 			fill: "none", stroke: "red", "stroke-width": 1}
 		));
 	}
-}
-
-// 
-class Plot extends Svg {
-	// transform user coordinates so 
-	// (0,0) -> (x0*scale, y0*scale)
-	// (w,h) -> (x0+w*scale, y0+h*scale)
-	constructor(x0: number, y0: number, w: number, h: number, scale: number = 1)
+	plot(x0: number, y0: number, w: number, h: number, scale: number = 1): Element
 	{
-		super(w, h);
+		const g = new Element("g", {transform: `translate(${x0*scale},${y0*scale}) scale(${scale})`});
+		return g;
 	}
 }
 
@@ -111,9 +105,11 @@ class Line extends Element {
 	}
 }
 
-const w = 100;
-const h = 200;
-const svg = new Svg(w, h);
+const W = 400;
+const H = 300;
+const w = 4;
+const h = 3;
+const svg = new Svg(W, H);
 /*
 const svg = new Svg(100, 100);
 //const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));

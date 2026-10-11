@@ -1,13 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
 :!npx tsx svg.ts
 :!npx tsc --noEmit
 */
-const xml_js_1 = require("./xml.js");
-const node_fs_1 = require("node:fs");
-//writeFileSync("output.txt", "hello world", "utf8");
-// Global functions to communicate scaling
+import { Element } from "./xml.js";
+import { writeFileSync } from "node:fs";
 class Point {
     x;
     y;
@@ -15,24 +11,24 @@ class Point {
         this.x = x;
         this.y = y;
     }
-    // x="x" y="y"
+    // x{suffix}="x" y{suffix}="y"
     toString(suffix = "") {
         const s = String(suffix);
         return `x${s}="${this.x}" y${s}="${this.y}"`;
     }
-    // {x: x, y: y}
-    attributes(suffix = "") {
+    // {x{suffix}: x, y{suffix}: y}
+    toAttributes(suffix = "") {
         const s = String(suffix);
         return { [`x${s}`]: this.x, [`y${s}`]: this.y };
     }
 }
 /*
 console.log((new Point(1,2)).toString());
-console.log((new Point(1,2)).attributes(2));
+console.log((new Point(1,2)).toAttributes(2));
 console.log((new Point(1,2)).toString(1));
 console.log((new Point(1,2)).toString());
 console.log((new Point(1,2)).toString(1));
-console.log((new Point(1,2)).attributes(1));
+console.log((new Point(1,2)).toAttributes(1));
 */
 class viewBox {
     x;
@@ -46,52 +42,27 @@ class viewBox {
         this.height = height;
     }
     toString() {
-        return `${this.x} ${this.y} ${this.width} ${this.height}`;
+        return `viewBox="${this.x} ${this.y} ${this.width} ${this.height}"`;
     }
 }
 // svg width height
-class Svg extends xml_js_1.Element {
-    #width;
-    #height;
-    #sx;
-    #sy;
+class Svg extends Element {
+    // allow number or string. 
     constructor(width, height, xmlns = "http://www.w3.org/2000/svg") {
-        super("svg");
-        this.#width = width;
-        this.#height = height;
-        this.#sx = 1;
-        this.#sy = 1;
-        this.attribute["width"] = width;
-        this.attribute["height"] = height;
-        this.attribute["xmlns"] = xmlns;
-        const rect = new xml_js_1.Element("rect");
-        rect.attribute["x"] = 0;
-        rect.attribute["y"] = 0;
-        rect.attribute["width"] = width;
-        rect.attribute["height"] = height;
-        rect.attribute["fill"] = "none";
-        rect.attribute["stroke"] = "red";
-        rect.attribute["stroke-width"] = 1;
-        this.content(rect);
+        super("svg", { width: width, height: height, xmlns: xmlns });
+        // TODO: remove
+        this.content(new Element("rect", { x: 0, y: 0, width: "100%", height: "100%",
+            fill: "none", stroke: "red", "stroke-width": 1 }));
     }
-    // user coordinates in box with user pixels scale'd
-    drawBox(xmin, ymin, xmax, ymax) {
-        this.#sx = this.#width / (xmax - xmin);
-        this.#sy = this.#height / (ymax - ymin);
-        this.attribute["viewBox"] = `0 0 ${this.#width} ${this.#height}`;
-        const g = new xml_js_1.Element("g");
-        const dx = -xmin;
-        const dy = ymax;
-        g.attribute["transform"] = `translate(${dx * this.#sx}, ${dy * this.#sy}) scale(${this.#sx}, ${this.#sy}) scale(1,-1)`;
+    plot(x0, y0, w, h, scale = 1) {
+        const g = new Element("g", { transform: `translate(${x0 * scale},${y0 * scale}) scale(${scale})` });
         return g;
     }
 }
-//console.log((new Svg(100,200)).drawBox(0, 0, 1, 2).toString());
-class Line extends xml_js_1.Element {
+// https://www.w3.org/TR/SVG/shapes.html#LineElement
+class Line extends Element {
     constructor(p1, p2) {
-        super("line");
-        Object.assign(this.attribute, p1.attributes(1));
-        Object.assign(this.attribute, p2.attributes(2));
+        super("line", { ...p1.toAttributes(1), ...p2.toAttributes(2) });
         this.attribute["stroke"] = "black";
     }
     color(color) {
@@ -99,6 +70,8 @@ class Line extends xml_js_1.Element {
         return this;
     }
     width(width) {
+        //const sx = this.lookupAttributeValue("sx");
+        //console.log(`sx = ${sx}`);
         this.attribute["stroke-width"] = width;
         return this;
     }
@@ -111,20 +84,22 @@ class Line extends xml_js_1.Element {
         return this;
     }
 }
+const w = 100;
+const h = 200;
+const svg = new Svg(w, h);
+/*
 const svg = new Svg(100, 100);
 //const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));
 const w = 10;
-const h = 10;
+const h = 20;
 const g = svg.drawBox(-1, -1, w, h);
 svg.content(g);
 console.log(g);
-const x = new Line(new Point(0, 0), new Point(0, w * .9)).width(1).linecap("square");
-g.content(x);
-const y = new Line(new Point(0, 0), new Point(h * .9, 0)).width(1).linecap("square");
-g.content(y);
-const z = new Line(new Point(w * .1, h * .1), new Point(w * .9, h * .9)).width(1);
-g.content(z);
-console.log(g);
-console.dir(svg, { depth: null, colors: true });
+>>>>>>> c39b46a (node_modules)
+const x = new Line(new Point(0, 0), new Point(0, w*.9)).width(1/w).linecap("square");
+console.log(x);
+//console.dir(svg, {depth: null, colors: true});
 console.log(svg.toString());
-(0, node_fs_1.writeFileSync)("output.svg", svg.toString(), "utf8");
+writeFileSync("output.svg", svg.toString(), "utf8");
+*/
+//# sourceMappingURL=svg.js.map

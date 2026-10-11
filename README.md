@@ -81,8 +81,13 @@ matrix(a,b,c,d,e,f)
 ```
 Transforms are applied left to right.
 
+
+
 We specify a `drawBox(x, y, w, h, s)` where `s` is the scale parameter.
 
 ```
-plot = new Plot(x0, y0, w, h, s); // an svg element
+svg = new Svg(width, height);
+plot = svg.Plot(x, y, w, h);
+plot.content(new Line(0,0,1,1));
+svg.toString();
 ```

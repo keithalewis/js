@@ -1,10 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-width="80%" height="auto"
-viewBox="-10 -10 1000 1000"
+width="80%" height="80%"
+viewBox="0 0 100 100"
 >
-<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="red" stroke-width="1"/>
-<g>
-<line x1="10" y1="10" x2="90" y2="90" stroke="black" stroke-width="1"/>
+<defs>
+<marker id="arrow"
+viewBox="0 0 10 10"
+refX="9"
+refY="5"
+markerWidth="5"
+markerHeight="5"
+orient="auto">
+ 
+<path d="M 1 1 L 9 5 L 1 9"
+fill="none"
+stroke="black"
+stroke-width="1"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="white">
+</rect>
+<g transform="translate(10,90) scale(.8,-.8)">
+<line x1="0" y1="0" x2="90" y2="0" stroke="black" stroke-width="1" marker-end="url(#arrow)"/>
+<text x="92" y="0" font-size="8" 
+transform="scale(1,-1)"
+    dominant-baseline="middle" 
+    text-anchor="start" 
+    fill="black">stock</text>
+<line x1="0" y1="0" x2="0" y2="90" stroke="black" stroke-width="1" marker-end="url(#arrow)"/>
+<text x="0" y="92" font-size="8" 
+    transform="scale(1,1)"
+    dominant-baseline="middle" 
+    fill="black">bond</text>
 </g>
 </svg>

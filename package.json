@@ -1,13 +1,16 @@
 {
   "scripts": {
-    "test": "node --import tsx --test test/*.t.ts",
-    "build": "tsc"
+    "test": "vitest run",
+    "build": "tsc",
+    "dev": "vite"
   },
   "devDependencies": {
-    "@types/node": "^26.6.1",
+    "@types/node": "^26.6.5",
+    "jsdom": "^29.1.1",
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",
-    "vite": "^8.3.0"
+    "vite": "^8.3.4",
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "esbuild@0.28.2": true
@@ -34,8 +37,6 @@
     "detect-libc": "^2.1.2",
     "esbuild": "^0.28.2",
     "fdir": "^6.5.0",
-    "lightningcss": "^1.33.0",
-    "lightningcss-linux-x64-gnu": "^1.33.0",
     "nanoid": "^3.3.19",
     "picocolors": "^1.1.1",
     "picomatch": "^4.0.7",
