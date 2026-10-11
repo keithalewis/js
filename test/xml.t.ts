@@ -2,7 +2,8 @@ import { expect, test } from "vitest";
 import { Element } from "../src/xml.js"
 
 	test.each([
-		[new Element("tag"), '<tag/>'],
+		[new Element("tag"),
+			 '<tag/>'],
 		[(new Element("tag", {"a": 1, "b": 2})),
 			'<tag a="1" b="2"/>'],
 		[(new Element("tag", {"a": 1, "b": 2}).content("contents")),
@@ -11,18 +12,6 @@ import { Element } from "../src/xml.js"
 		expect(String(actual)).toBe(expected);
 	});
 
-//console.assert(toString({"a": 1, "b": 2} as Attributes) === 'a="1" b="2"', "toString(Attributes) failed");
-//console.log(({"a": 1, "b": 2} as Attributes));
-//console.log(toString({"a": 1, "b": 2} as Attributes));
-//console.assert(new Content("abc").toString() === "abc", "Content failed.");
-//
-//function testElement()
-//{
-//	let e = new Element("tag");
-//	console.log(e);
-//	console.log(e.toString());
-//	console.assert(e.toString() === "<tag/>");
-//}
 //function testElementAttributes()
 //{
 //	let e0 = new Element("tag", {k: "v", k2: 2});
