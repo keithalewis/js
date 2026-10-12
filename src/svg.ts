@@ -49,18 +49,11 @@ class Svg extends Element {
 			fill: "none", stroke: "hotpink", "stroke-width": 1}
 		));
 	}
-<<<<<<< HEAD
-	plot(x0: number, y0: number, w: number, h: number, scale: number = 1): Element
-	{
-		const g = new Element("g", {transform: `translate(${x0*scale},${y0*scale}) scale(${scale})`});
-		return g;
-=======
 	// User coordinates from lower-left to upper-right.
 	plot(llx: number, lly: number,  urx: number,  ury: number): Element
 	{
 		this.attribute["viewBox"] = `${llx} ${lly} ${urx - llx} ${ury - lly}`;
 		return new Element("g", {transform: `translate(0, ${ury - lly}) scale(1, -1)`});
->>>>>>> e87c36ee364c447beb6a10c9c560774f9dfe8679
 	}
 }
 
