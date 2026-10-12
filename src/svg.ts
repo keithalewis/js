@@ -94,24 +94,11 @@ class Line extends Element {
 	}
 }
 
-<<<<<<< HEAD
 const W = 400;
 const H = 300;
 const w = 4;
 const h = 3;
 const svg = new Svg(W, H);
-=======
-const w = 20;
-const h = 10;
-const svg = new Svg(400, 200);
-const p = svg.plot(0, 0, w, h);
-const x = new Line(new Point(0, 0), new Point(h*.9, w * .9)).width(1).linecap("square");
-p.content(x);
-_DEBUG && console.log(p);
-svg.content(p);
-console.log(svg.toString());
-writeFileSync("output.svg", svg.toString(), "utf8");
->>>>>>> e87c36ee364c447beb6a10c9c560774f9dfe8679
 /*
 //const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));
 const w = 10;
