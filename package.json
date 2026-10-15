@@ -5,12 +5,7 @@
     "dev": "vite"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "@types/node": "^26.6.5",
-    "jsdom": "^29.1.1",
-=======
     "@types/node": "^26.6.4",
->>>>>>> e87c36ee364c447beb6a10c9c560774f9dfe8679
     "tsx": "^4.23.13",
     "typescript": "^5.9.3",
     "vite": "^8.3.4",

@@ -2,7 +2,7 @@
 :!npx tsx %
 :!npx tsc --noEmit
 */
-import { Element } from "./xml.js";
+import { Element } from "./xml.ts";
 import { writeFileSync } from "node:fs";
 
 const _DEBUG = true;
@@ -20,15 +20,8 @@ class Point {
 	}
 }
 
-_DEBUG && console.log(JSON.stringify((new Point(1,2)).toAttributes("0")));
 console.assert(JSON.stringify((new Point(1,2)).toAttributes("0")) === '{"x0":1,"y0":2}');
-/*
-_DEBUG && console.log((new Point(1,2)).toAttributes(2));
-_DEBUG && console.log((new Point(1,2)).toString(1));
-_DEBUG && console.log((new Point(1,2)).toString());
-_DEBUG && console.log((new Point(1,2)).toString(1));
-_DEBUG && console.log((new Point(1,2)).toAttributes(1));
-*/
+
 
 type viewBox = {
 	x: number;
@@ -38,29 +31,23 @@ type viewBox = {
 }
 
 // svg width height
+// https://www.w3.org/TR/SVG/struct.html#SVGElement
 class Svg extends Element {
 	// allow number or string. 
-	constructor(width: number|string = "100%", height: number|string = "100%", xmlns: string = "http://www.w3.org/2000/svg")
+	constructor(width: number|string = "100%", height: number|string, xmlns: string = "http://www.w3.org/2000/svg")
 	{
 		super("svg", {width: width, height: height, xmlns: xmlns});
 		// TODO: remove
 		this.content(new Element(
 			"rect", {x: 0, y: 0, width: "100%", height: "100%", 
-			fill: "none", stroke: "hotpink", "stroke-width": 1}
+			fill: "none", stroke: "hotpink", "stroke-width": 0.1}
 		));
 	}
-<<<<<<< HEAD
-	plot(x0: number, y0: number, w: number, h: number, scale: number = 1): Element
+	viewBox(x: number, y: number, w: number, h: number): this
 	{
-		const g = new Element("g", {transform: `translate(${x0*scale},${y0*scale}) scale(${scale})`});
-		return g;
-=======
-	// User coordinates from lower-left to upper-right.
-	plot(llx: number, lly: number,  urx: number,  ury: number): Element
-	{
-		this.attribute["viewBox"] = `${llx} ${lly} ${urx - llx} ${ury - lly}`;
-		return new Element("g", {transform: `translate(0, ${ury - lly}) scale(1, -1)`});
->>>>>>> e87c36ee364c447beb6a10c9c560774f9dfe8679
+		this.attribute["viewBox"] = `${x} ${y} ${w} ${h}`;
+		
+		return this;
 	}
 }
 
@@ -94,26 +81,11 @@ class Line extends Element {
 	}
 }
 
-<<<<<<< HEAD
-const W = 400;
-const H = 300;
 const w = 4;
 const h = 3;
-const svg = new Svg(W, H);
-=======
-const w = 20;
-const h = 10;
-const svg = new Svg(400, 200);
-const p = svg.plot(0, 0, w, h);
-const x = new Line(new Point(0, 0), new Point(h*.9, w * .9)).width(1).linecap("square");
-p.content(x);
-_DEBUG && console.log(p);
-svg.content(p);
-console.log(svg.toString());
-writeFileSync("output.svg", svg.toString(), "utf8");
->>>>>>> e87c36ee364c447beb6a10c9c560774f9dfe8679
+const svg = new Svg("80%", "auto");
+const g = svg.viewBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)).width(0.1));
 /*
-//const g = svg.drawBox(0, 0, 2, 2).content(new Line(new Point(0.5, 0.5), new Point(1.5, 1.5)));
 const w = 10;
 const h = 20;
 const g = svg.drawBox(-1, -1, w, h);
@@ -123,5 +95,6 @@ const x = new Line(new Point(0, 0), new Point(0, w*.9)).width(1/w).linecap("squa
 console.log(x);
 //console.dir(svg, {depth: null, colors: true});
 _DEBUG && console.log(svg.toString());
-writeFileSync("output.svg", svg.toString(), "utf8");
 */
+writeFileSync("output.svg", svg.toString(), "utf8");
+

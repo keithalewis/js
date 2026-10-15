@@ -25,10 +25,13 @@
     },
     {
       "name": "Generate svg.svg",
-      "type": "node-terminal",
+      "type": "node",
       "request": "launch",
-      "command": "npx tsx src/xml.ts",
-      "cwd": "${workspaceFolder}"
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+      "program": "${workspaceFolder}/src/svg.ts",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }
