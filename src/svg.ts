@@ -51,16 +51,15 @@ class viewBox {
 class Svg extends XmlElement {
   // allow number or string.
   constructor(
-    width: number | string = "100%",
-    height: number | string,
+    width?: number | string,
+    height?: number | string,
     xmlns: string = "http://www.w3.org/2000/svg",
   ) {
     super("svg", {
-      width: width,
-      height: height,
+      ...(width === undefined ? {} : { width }),
+      ...(height === undefined ? {} : { height }),
       xmlns: xmlns,
-      preserveAspectRatio: "xMidYMid slice",
-      style: "border: 1px solid black",
+      preserveAspectRatio: "xMidYMid meet",
     });
   }
   viewBox(x: number, y: number, w: number, h: number): this {
@@ -161,7 +160,7 @@ class Text extends XmlElement {
   }
 }
 
-class Math extends XmlElement {
+class MathML extends XmlElement {
   constructor(math: string, x: number, y: number) {
     super("foreignObject", { x: x, y: y, width: 1, height: 1 });
     const div = new XmlElement("div", {

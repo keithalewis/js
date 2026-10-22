@@ -19,15 +19,15 @@
 type XmlAttributes = Record<string, any>;
 function toStringXmlAttributes(obj: XmlAttributes): string {
   return Object.entries(obj)
-    .map(([k, v]) => `${k}="${v}"`)
+    .map(([k, v]) => `${k}="${JSON.stringify(v)}"`)
     .join(" ");
 }
 console.assert(toStringXmlAttributes({}) === "");
-console.assert(
+console.log(
   toStringXmlAttributes({ a: 1, b: "two", c: true, d: null }) ===
     'a="1" b="two" c="true" d="null"',
 );
-console.log(String({a:1, b:"two")});
+//console.log(JSON.stringify({a:1, b:"two"}));
 
 class XmlElement {
   name: string;
@@ -60,7 +60,7 @@ class XmlElement {
     return this;
   }
   // Return attribute value given key in current or ancestors.
-  lookupAttributeValue(key: string) {
+lookupAttributeValue(key: string) : string | undefined {
     const value = this.attribute[key];
     if (value) {
       return value;
@@ -70,7 +70,7 @@ class XmlElement {
       return parent.lookupAttributeValue(key);
     }
 
-    return null;
+    return undefined;
   }
 
   // Append new content.
@@ -85,7 +85,9 @@ class XmlElement {
   
   toString(): string {
     const attributes = toStringXmlAttributes(this.attribute);
-    const content = this.content.map((c) => String(c)).join("");
+    const content = this.content
+      .map((c) => (typeof c === "string" ? escapeXml(c) : c.toString()))
+      .join("");
     let tag = `<${this.name}`;
     if (attributes.length) {
       tag += ` ${attributes}`;
@@ -98,7 +100,12 @@ console.assert(new XmlElement("a", { b: "c" }).toString() === '<a b="c"/>');
 console.assert(new XmlElement("a", {}, ["b"]).toString() === "<a>b</a>");
 console.assert(new XmlElement("foo", {vb: [1,2]}).toString() === '<foo vb="1,2"/>');
 
-export { XmlElement };
+console.assert(
+  new XmlElement("a", { b: 'x"<&' }, ["1<2"]).toString() ===
+    '<a b="x&quot;&lt;&amp;">1&lt;2</a>',
+);
+
+export { XmlElement, escapeXml };
 
 // TODO: make idempotent?
 function escapeXml(value: string, attribute = false): string {
