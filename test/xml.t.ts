@@ -1,13 +1,13 @@
 import { expect, test } from "vitest";
-import { Element } from "../src/xml.js"
+import { XmlElement } from "../src/xml.ts"
 
 	test.each([
-		[new Element("tag"),
+		[new XmlElement("tag"),
 			 '<tag/>'],
-		[(new Element("tag", {"a": 1, "b": 2})),
+		[(new XmlElement("tag", {"a": 1, "b": 2})),
 			'<tag a="1" b="2"/>'],
-		[(new Element("tag", {"a": 1, "b": 2}).content("contents")),
-			'<tag a="1" b="2">contents</tag>']
+		[(new XmlElement("tag", {"a": 1, "b": 2}).addChild(new XmlElement("child", {"c": 3}))),
+			'<tag a="1" b="2"><child c="3"/></tag>']
 	])("ElementTest", (actual, expected) => {
 		expect(String(actual)).toBe(expected);
 	});

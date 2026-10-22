@@ -1,21 +1,16 @@
-type AttributeValue = string | number;
-type Attributes = Record<string, AttributeValue>;
-declare class Content {
-    content: Element | string;
-    constructor(content: Element | string);
-    toString(): string;
-}
-declare class Element {
+type XmlAttributeValue = string | number | boolean | null;
+type XmlAttributes = Record<string, XmlAttributeValue>;
+declare class XmlElement {
     name: string;
-    attribute: Attributes;
-    contents: Content[];
-    parent?: Element;
-    constructor(name: string, attributes?: Attributes);
-    static copy(e: Element): Element;
-    attributes(as: Attributes): this;
-    content(content: Element | string): this;
-    lookupAttributeValue(key: string): AttributeValue | undefined;
+    attribute: XmlAttributes;
+    content: (string | XmlElement)[];
+    parent?: XmlElement;
+    constructor(name: string, attribute?: XmlAttributes, content?: (XmlElement | string)[]);
+    static clone(e: XmlElement): XmlElement;
+    setAttributes(attributes: XmlAttributes): this;
+    lookupAttributeValue(key: string): XmlAttributeValue;
+    addChild(child: XmlElement | string): this;
     toString(): string;
 }
-export { Element };
+export { XmlElement };
 //# sourceMappingURL=xml.d.ts.map
