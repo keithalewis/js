@@ -174,6 +174,7 @@ const TextAlignment: Record<string, object> = {
 
 // https://www.w3.org/TR/SVG/text.html
 class Text extends XmlElement {
+  p: Point;
   constructor(text: string, x: number, y: number, fontSize: number = 1) {
     super(
       "text",
@@ -185,26 +186,30 @@ class Text extends XmlElement {
       },
       [text],
     );
+    this.p = new Point(x, y);
   }
   align(
     position: "below" | "above" | "left" | "right",
     padding: number = 0,
   ): this {
-    
+    const alignment = TextAlignment[position];
+    this.setAttributes(TextAlignment[position]);   
     switch (position) {
       case "below":
-        this.y -= padding;
+        this.p.translate(0, -padding);
         break;
       case "above":
-        this.y += padding;
+        this.p.translate(0, padding);
         break;
       case "left":
-        this.x -= padding;
+        this.p.translate(-padding, 0);
         break;
       case "right":
-        this.x += padding;
+        this.p.translate(padding, 0);
         break;
     }
+    this.setAttributes(this.p.toAttributes());
+    
     return this;
   }
 }
