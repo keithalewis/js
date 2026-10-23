@@ -20,6 +20,20 @@ class Point {
 
     return this;
   }
+  scale(sx: number, sy: number = sx): this {
+    this.x *= sx;
+    this.y *= sy;
+
+    return this;
+  }
+  rotate(theta: number): this {
+    const x = this.x * Math.cos(theta) - this.y * Math.sin(theta);
+    const y = this.x * Math.sin(theta) + this.y * Math.cos(theta);
+    this.x = x;
+    this.y = y;
+
+    return this;
+  }
   toAttributes(suffix: string | number = ""): Record<string, number> {
     const s = String(suffix);
     return { [`x${s}`]: this.x, [`y${s}`]: this.y };
@@ -141,10 +155,24 @@ class Line extends XmlElement {
 
 class Xtick extends Line {
   constructor(x: number, y1: number, y2: number) {
-	super(new Point(x, y1), new Point(x, y2));
+    super(new Point(x, y1), new Point(x, y2));
   }
 }
 
+class Ytick extends Line {
+  constructor(x1: number, x2: number, y: number) {
+    super(new Point(x1, y), new Point(x2, y));
+  }
+}
+
+const TextAlignment: Record<string, object> = {
+  below: { "text-anchor": "middle", "dominant-baseline": "hanging" },
+  above: { "text-anchor": "middle", "dominant-baseline": "baseline" },
+  left: { "text-anchor": "end", "dominant-baseline": "middle" },
+  right: { "text-anchor": "start", "dominant-baseline": "middle" },
+};
+
+// https://www.w3.org/TR/SVG/text.html
 class Text extends XmlElement {
   constructor(text: string, x: number, y: number, fontSize: number = 1) {
     super(
@@ -158,6 +186,27 @@ class Text extends XmlElement {
       [text],
     );
   }
+  align(
+    position: "below" | "above" | "left" | "right",
+    padding: number = 0,
+  ): this {
+    
+    switch (position) {
+      case "below":
+        this.y -= padding;
+        break;
+      case "above":
+        this.y += padding;
+        break;
+      case "left":
+        this.x -= padding;
+        break;
+      case "right":
+        this.x += padding;
+        break;
+    }
+    return this;
+  }
 }
 
 class MathML extends XmlElement {
@@ -165,13 +214,13 @@ class MathML extends XmlElement {
     super("foreignObject", { x: x, y: y, width: 1, height: 1 });
     const div = new XmlElement("div", {
       xmlns: "http://www.w3.org/1999/xhtml",
-	  style: {
+      style: {
         margin: "0",
         padding: "0",
         position: "absolute",
         left: "0",
         top: "0",
-      }
+      },
     });
     div.addChild(new XmlElement("math", {}, [math]));
     this.addChild(div);
@@ -180,15 +229,22 @@ class MathML extends XmlElement {
 
 const w = 4;
 const h = 3;
+const fontSize = 0.2;
 let svg = new Svg("80%", "60%");
 const g = svg.plotBox(1, 1, 4, 3);
- g.addChild(new Line(new Point(0, 0), new Point(4, 0)))
- g.addChild(new Line(new Point(0, 0), new Point(0, 3)))
+g.addChild(new Line(new Point(0, 0), new Point(4, 0)));
+g.addChild(new Line(new Point(0, 0), new Point(0, 3)));
 g.addChild(new Line(new Point(0, 0), new Point(4, 3)));
 //g.addChild(new Text("Ω = (0,0)", 0, 0, 0.5));
 g.addChild(new Xtick(3, -0.1, 0.1));
-g.addChild(new Xtick(2, 0, 0.2));
-g.addChild(new Xtick(1, -0.2, 0));
+g.addChild(new Xtick(1, -0.1, 0.1));
+g.addChild(new Ytick(-0.1, 0.1, 2));
+g.addChild(
+  new Text("label", 3, 0.1, fontSize).setAttributes({
+    "text-anchor": "middle",
+    "dominant-baseline": "hanging",
+  }),
+);
 /*
 const w = 10;
 const h = 20;

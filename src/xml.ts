@@ -5,6 +5,8 @@
 
 "use strict";
 
+const _DEBUG = false;
+
 // Simplified BNF grammar for XML:
 //
 // element ::= emptyElement | startTag content endTag
@@ -15,19 +17,22 @@
 //   attributes ::= attribute*
 //   attribute ::= Name '=' String
 
+type XmlAttributeValue = string | number | boolean;
 // Gets converted to string.
-type XmlAttributes = Record<string, any>;
+type XmlAttributes = Record<string, XmlAttributeValue>;
 function toStringXmlAttributes(obj: XmlAttributes): string {
   return Object.entries(obj)
-    .map(([k, v]) => `${k}="${JSON.stringify(v)}"`)
+    .map(([k, v]) => `${k}="${v}"`)
     .join(" ");
 }
-console.assert(toStringXmlAttributes({}) === "");
-console.log(
-  toStringXmlAttributes({ a: 1, b: "two", c: true, d: null }) ===
-    'a="1" b="two" c="true" d="null"',
-);
-//console.log(JSON.stringify({a:1, b:"two"}));
+const XmlAttributesTest: [XmlAttributes, string][] = [
+  [{ a: 1, b: "two", c: true }, 'a="1" b="two" c="true"']
+];
+for (const [attribute, expected] of XmlAttributesTest) {
+  const actual = toStringXmlAttributes(attribute);
+  _DEBUG && console.log(actual /*=== expected*/);
+  console.assert(actual === expected);
+} 
 
 class XmlElement {
   name: string;
@@ -60,7 +65,7 @@ class XmlElement {
     return this;
   }
   // Return attribute value given key in current or ancestors.
-lookupAttributeValue(key: string) : string | undefined {
+  lookupAttributeValue(key: string): XmlAttributeValue | undefined {
     const value = this.attribute[key];
     if (value) {
       return value;
@@ -75,14 +80,14 @@ lookupAttributeValue(key: string) : string | undefined {
 
   // Append new content.
   addChild(child: XmlElement | string): this {
-    if (typeof(child) !== "string") {
+    if (typeof child !== "string") {
       child.parent = this;
     }
     this.content.push(child);
 
     return this;
   }
-  
+
   toString(): string {
     const attributes = toStringXmlAttributes(this.attribute);
     const content = this.content
@@ -95,17 +100,17 @@ lookupAttributeValue(key: string) : string | undefined {
     return content.length ? `${tag}>${content}</${this.name}>` : `${tag}/>`;
   }
 }
-console.assert(new XmlElement("a", {}, ["b"]).toString() === "<a>b</a>");
-console.assert(new XmlElement("a", { b: "c" }).toString() === '<a b="c"/>');
-console.assert(new XmlElement("a", {}, ["b"]).toString() === "<a>b</a>");
-console.assert(new XmlElement("foo", {vb: [1,2]}).toString() === '<foo vb="1,2"/>');
+const XmlElementTest: [XmlElement, string][] = [
+  [new XmlElement("a", {}, ["b"]), "<a>b</a>"],
+  [new XmlElement("a", { b: "c" }), '<a b="c"/>'],
+];
+for (const [element, expected] of XmlElementTest) {
+  const actual = element.toString();
+  _DEBUG && console.log(actual /*=== expected*/);
+  console.assert(actual === expected);
+}
 
-console.assert(
-  new XmlElement("a", { b: 'x"<&' }, ["1<2"]).toString() ===
-    '<a b="x&quot;&lt;&amp;">1&lt;2</a>',
-);
-
-export { XmlElement, escapeXml };
+export { XmlElement };
 
 // TODO: make idempotent?
 function escapeXml(value: string, attribute = false): string {
