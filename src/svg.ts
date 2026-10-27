@@ -77,7 +77,7 @@ class Svg extends XmlElement {
     });
   }
   viewBox(x: number, y: number, w: number, h: number): this {
-    this.setAttributes({ viewBox: new viewBox(x, y, w, h) });
+    this.setAttributes({ viewBox: new viewBox(x, y, w, h).toString() });
 
     return this;
   }
@@ -109,8 +109,9 @@ class Line extends XmlElement {
   length(): number {
     const dx = this.p2.x - this.p1.x;
     const dy = this.p2.y - this.p1.y;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
+   
+    return Math.hypot(dx, dy);
+   }
   animate(duration: string = "2s"): this {
     this.addChild(
       new XmlElement("animate", {
@@ -165,7 +166,10 @@ class Ytick extends Line {
   }
 }
 
-const TextAlignment: Record<string, object> = {
+const TextAlignment: Record<
+  "below" | "above" | "left" | "right",
+  Record<string, string>
+> = {
   below: { "text-anchor": "middle", "dominant-baseline": "hanging" },
   above: { "text-anchor": "middle", "dominant-baseline": "baseline" },
   left: { "text-anchor": "end", "dominant-baseline": "middle" },
@@ -192,30 +196,13 @@ class Text extends XmlElement {
     position: "below" | "above" | "left" | "right",
     padding: number = 0,
   ): this {
-    switch (position) {
-      case "below":
-        this.setAttributes({ "text-anchor": "middle", "dominant-baseline": "hanging" });
-        this.p.translate(0, padding);
-        break;
-      case "above":
-        this.setAttributes({ "text-anchor": "middle", "dominant-baseline": "baseline" });
-        this.p.translate(0, -padding);
-        break;
-      case "left":
-        this.setAttributes({ "text-anchor": "end", "dominant-baseline": "middle" });
-        this.p.translate(padding, 0);
-        break;
-      case "right":
-         this.setAttributes({ "text-anchor": "start", "dominant-baseline": "middle" });
-       this.p.translate(-padding, 0);
-        break;
-    }
+    this.setAttributes(TextAlignment[position]);
     this.setAttributes(this.p.toAttributes());
 
     return this;
   }
 }
-
+/*
 class MathML extends XmlElement {
   constructor(math: string, x: number, y: number) {
     super("foreignObject", { x: x, y: y, width: 1, height: 1 });
@@ -233,6 +220,7 @@ class MathML extends XmlElement {
     this.addChild(div);
   }
 }
+*/
 
 const w = 4;
 const h = 3;
@@ -248,6 +236,6 @@ g.addChild(new Text("3", 3, 0.1, fontSize).align("below", 0.1));
 g.addChild(new Xtick(1, -0.1, 0.1));
 g.addChild(new Text("1", 1, 0.1, fontSize).align("below", 0.1));
 g.addChild(new Ytick(-0.1, 0.1, 2));
-g.addChild(new Text("2", -0.1, 2, fontSize).align("left", 0.1));
+g.addChild(new Text("2", -0.1, -2, fontSize).align("left", 0.1));
 
 writeFileSync("output.svg", svg.toString(), "utf8");
