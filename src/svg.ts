@@ -39,12 +39,11 @@ class Point {
     return { [`x${s}`]: this.x, [`y${s}`]: this.y };
   }
 }
-
 console.assert(
   JSON.stringify(new Point(1, 2).toAttributes("0")) === '{"x0":1,"y0":2}',
 );
 
-class viewBox {
+class ViewBox {
   x: number;
   y: number;
   w: number;
@@ -77,16 +76,31 @@ class Svg extends XmlElement {
     });
   }
   viewBox(x: number, y: number, w: number, h: number): this {
-    this.setAttributes({ viewBox: new viewBox(x, y, w, h).toString() });
+    this.attribute["viewBox"] = new ViewBox(x, y, w, h).toString();
 
     return this;
   }
   plotBox(x: number, y: number, w: number, h: number): XmlElement {
     this.viewBox(-x, -y, w + 2 * x, h + 2 * y);
-    let g = new XmlElement("g", { transform: `translate(0, ${h})` });
+    const c = y + h/2;
+    const g = new XmlElement("g", { transform: `translate(0, ${2*c - y})` });
     this.addChild(g);
-
+  
     return g;
+  }
+}
+// https://www.w3.org/TR/SVG/shapes.html#CircleElement
+class Circle extends XmlElement {
+  constructor(cx: number, cy: number, r: number, color: string = "black") {
+    super("circle", { cx, cy, r, fill: color });
+  }
+  stroke(color: string): this {
+    this.attribute["stroke"] = color;
+    return this;
+  }
+  strokeWidth(width: number): this {
+    this.attribute["stroke-width"] = width;
+    return this;
   }
 }
 
@@ -224,7 +238,7 @@ class MathML extends XmlElement {
 
 const w = 4;
 const h = 3;
-const fontSize = 0.15;
+const fontSize = 0.12;
 let svg = new Svg();
 const g = svg.plotBox(1, 1, 4, 3);
 g.addChild(new Line(new Point(0, 0), new Point(4, 0)));
@@ -232,10 +246,10 @@ g.addChild(new Line(new Point(0, 0), new Point(0, 3)));
 g.addChild(new Line(new Point(0, 0), new Point(4, 3)));
 //g.addChild(new Text("Ω = (0,0)", 0, 0, 0.5));
 g.addChild(new Xtick(3, -0.1, 0.1));
-g.addChild(new Text("3", 3, 0.1, fontSize).align("below", 0.1));
+g.addChild(new Text("3", 3, 0.1, fontSize).align("below", 0.2));
 g.addChild(new Xtick(1, -0.1, 0.1));
 g.addChild(new Text("1", 1, 0.1, fontSize).align("below", 0.1));
 g.addChild(new Ytick(-0.1, 0.1, 2));
-g.addChild(new Text("2", -0.1, -2, fontSize).align("left", 0.1));
+g.addChild(new Text("2", -0.1, -2, fontSize).align("left", 0.2));
 
 writeFileSync("output.svg", svg.toString(), "utf8");

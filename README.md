@@ -4,20 +4,21 @@ Simple Typescript wrappers for generating SVG.
 
 ## `<xml>`
 
-An _XML document_ is a tree of _nodes_. Every document tree has
-a _root node_. Every node in a document
-can have any number of _child nodes_. The XML standard defines _descendants_
-and _ancestors_ in the usual way.
+An _XML document_ is a tree of _nodes_. Every document tree has a _root node_. 
+Every node in a document can have any number of _child nodes_. 
+The XML standard defines _descendants_ and _ancestors_ in the usual way.
 
-An XML document is just an optional prolog `<?xml version="major.minor" ...?>` followed by an _element_ and zero or more miscellaneous nodes we can ignore and get by
-with "major.minor" = "1.0" until you run into problems requiring more
-advanced XML features.
+An XML document is just an optional prolog `<?xml version="major.minor" ...?>` 
+followed by an _element_ and zero or more miscellaneous nodes.
+Default is  `"major.minor" = "1.0"`.
 
 ```
 document ::= '<?xml version="1.0"?>' element misc*
 ```
 
-Every element is a node, but not every node is an element.
+Every element is a node, but not every node is an element, for example,
+attributes attached to elements are nodes.
+We leave
 
 ```
 element ::= emptyElement
@@ -83,11 +84,7 @@ Transforms are applied left to right.
 
 
 
-We specify a `drawBox(x, y, w, h, s)` where `s` is the scale parameter.
+plotBox : scale axes
 
-```
-svg = new Svg(width, height);
-plot = svg.Plot(x, y, w, h);
-plot.content(new Line(0,0,1,1));
-svg.toString();
-```
+transform: Line,point flips
+           Text translates

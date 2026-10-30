@@ -12,10 +12,20 @@ const _DEBUG = false;
 // element ::= emptyElement | startTag content endTag
 // emptyElement ::= '<' Name attributes? '/>'
 // startTag ::= '<' Name attributes? '>'
-// content ::= (element | text)*
+// content ::= (element | text)+
 // endTag ::= '</' Name '>'
 //   attributes ::= attribute*
 //   attribute ::= Name '=' String
+
+function XmlComment(value: string): string {
+  return `<!-- ${value} -->`;
+}
+function XmlProcessingInstruction(target: string, data: string): string {
+  return `<?${target} ${data}?>`;
+}
+function XmlCData(value: string): string {
+  return `<![CDATA[${value}]]>`;
+}
 
 type XmlAttributeValue = string | number | boolean;
 // Gets converted to string.
